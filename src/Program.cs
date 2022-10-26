@@ -18,7 +18,7 @@ namespace PowerAutomateRunner
     internal class Program
     {
         private static readonly Dictionary<string, string?> parsedArgs = new();
-        
+
         [DllImport("user32.dll", EntryPoint = "SetCursorPos")]
         private static extern bool SetCursorPos(int X, int Y);
 
