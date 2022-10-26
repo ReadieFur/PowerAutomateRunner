@@ -221,7 +221,20 @@ namespace PowerAutomateRunner
                 Exit("Could not find the flows UI element.", 5);
 
             //Find the specified flow.
-            AutomationElement? flow = flows_2?.FindElement(e => e.Name == flowName && e.ClassName == "DataGridRow");
+            AutomationElement? flow = null;
+            for (int i = 0; i < (GetIntArg("--retry-attempts") ?? 10); i++)
+            {
+                flow = flows_2?.FindElement(e => e.Name == flowName && e.ClassName == "DataGridRow");
+                if (flow != null)
+                    break;
+                Thread.Sleep(GetIntArg("--retry-interval") ?? 250);
+            }
+            if (flow == null)
+                Exit($"Could not find the specified flow: {flowName}", 6);
+
+            SelectionItemPattern? selectionItemPattern = flow?.GetCurrentPattern(SelectionItemPatternIdentifiers.Pattern) as SelectionItemPattern;
+            selectionItemPattern?.Select();
+
             AutomationElement? dataGridCell = flow?.FindElement(e => e.Name == flowName && e.ClassName == "DataGridCell");
             AutomationElement? runButton = dataGridCell?.FindElement(e => e.Name == "Run");
             InvokePattern? invokePattern_2 = runButton?.GetCurrentPattern(InvokePattern.Pattern) as InvokePattern;
